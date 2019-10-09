@@ -4,14 +4,16 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon --exec babel-node index.js"
+    "start": "nodemon -- --inspect --exec babel-node index.js"
   },
   "author": "vananhm-1205",
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.19.0",
     "consign": "^0.1.6",
-    "express": "^4.17.1"
+    "dotenv": "^8.1.0",
+    "express": "^4.17.1",
+    "mongoose": "^5.7.3"
   },
   "devDependencies": {
     "@babel/cli": "^7.6.2",

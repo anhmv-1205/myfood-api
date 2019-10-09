@@ -1,5 +1,4 @@
 var bodyParser = require('body-parser');
-// doc hinh multiform form data
 
 module.exports = app => {
     app.set("port", 3000);

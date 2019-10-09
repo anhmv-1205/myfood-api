@@ -1,5 +1,5 @@
-import { index } from '../controllers/index';
+var controller = require('../controllers/index') 
 
-export default app => {
-    app.get('/status', index);
-};
+module.exports = (app) => {
+    app.get('/status', controller.getUsers);
+}
