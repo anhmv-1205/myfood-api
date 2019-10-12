@@ -1,4 +1,6 @@
-var User = require('../models/user');
+var User = require('../models/user'),
+    jwt = require('jsonwebtoken'),
+    bcrypt = require('bcrypt');
 
 module.exports.index = function(req, res) {
     res.json({author: "dong bin"});
