@@ -1,10 +1,19 @@
 var User = require('../models/user'),
-    Constants = require('../utils/constants');
+    Constants = require('../utils/constants'),
+    jwt = require('jsonwebtoken');
 
 module.exports.loginRequired = function (req, res, next) {
-    if (req.user) {
+    const token = req.headers.authorization;
+
+    if (!token) return res.status(401).json({
+        message: 'Access denied. No token provided.'
+    });
+
+    try {
+        const decoded = jwt.verify(token, process.env.API_PRIVATE_KEY);
+        req.user = decoded;
         next();
-    } else {
+    } catch(ex) {
         return res.status(401).json({
             message: Constants.MESSAGE_UNAUTHORIZED,
             status: Constants.STATUS_ERROR

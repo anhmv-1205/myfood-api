@@ -1,5 +1,7 @@
-var controller = require('../controllers/index') 
+var controller = require('../controllers/index');
 
 module.exports = (app) => {
-    app.get('/status', controller.getUsers);
-}
+    app.get('/', controller.index);
+
+    app.get('/list_user', controller.getUsers);
+};

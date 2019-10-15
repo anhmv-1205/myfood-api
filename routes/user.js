@@ -6,5 +6,10 @@ module.exports = (app) => {
 
     app.post('/sign_in', userController.sign_in);
 
-    app.get('/users', authController.loginRequired, userController.getUsers)
-}
+    app.get('/users', authController.loginRequired, userController.getUsers);
+
+    app.route('/users/:userId')
+        .get(authController.loginRequired, userController.getUserWithId)
+        .put(authController.loginRequired, userController.updateUser)
+        .delete(authController.loginRequired, userController.deleteUser);
+};
