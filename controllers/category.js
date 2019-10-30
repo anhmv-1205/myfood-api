@@ -7,9 +7,9 @@ module.exports.createCategory = function (req, res) {
         return res.status(500).json({
             message: 'error',
             status: Constants.STATUS_ERROR
-        })
+        });
     }
-    req.body.img_url = Constants.MY_FOOD_URL + 'images/' + req.file.filename;
+    req.body.img_url = Constants.MY_FOOD_URL + Constants.PATH_IMG + req.file.filename;
 
     var category = new Category(req.body);
 
@@ -30,10 +30,6 @@ module.exports.createCategory = function (req, res) {
 };
 
 module.exports.getCategories = async function (req, res) {
-
-    if (req.file) {
-        req.body.img_url = Constants.MY_FOOD_URL + 'images/' + req.file.filename;
-    }
 
     try {
         var categories = await Category.find();
@@ -75,6 +71,11 @@ module.exports.deleteCategory = async (req, res) => {
 };
 
 module.exports.updateCategory = async (req, res) => {
+
+    if (req.file) {
+        req.body.img_url = Constants.MY_FOOD_URL + Constants.PATH_IMG + req.file.filename;
+    }
+
     try {
         let category = await Category.findOneAndUpdate({
                 _id: req.params.categoryId

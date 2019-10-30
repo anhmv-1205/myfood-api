@@ -2,6 +2,7 @@ var express = require('express');
 var consign = require('consign');
 
 const app = express();
+var http = require('http').createServer(app);
 
 consign()
     .include("libs/config.js")

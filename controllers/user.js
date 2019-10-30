@@ -4,13 +4,21 @@ var User = require('../models/user'),
     constants = require('../utils/constants');
 
 module.exports.register = function (req, res) {
+    if (req.body.password.trim().length < 6) {
+        return res.status(400).json({
+            data: "",
+            message: constants.MESSAGE_INVALID_PASSWORD,
+            status: constants.STATUS_ERROR
+        });
+    }
     var newUser = new User(req.body);
-    newUser.hash_password = bcrypt.hashSync(req.body.password, 10);
+    newUser.hash_password = bcrypt.hashSync(req.body.password.trim(), 10);
     newUser.save(function (err, user) {
         if (err) {
-            return res.json({
+            console.log(err)
+            return res.status(400).json({
                 data: "",
-                message: err.errmsg,
+                message: err.message,
                 status: constants.STATUS_ERROR
             });
         } else {
@@ -38,13 +46,14 @@ module.exports.sign_in = function (req, res) {
                 message: constants.MESSAGE_401
             });
         }
+        user.hash_password = undefined
         return res.json({
             token: jwt.sign({
                 _id: user._id,
                 email: user.email,
-                name: user.name,
-                authorities: user.authorities
+                name: user.name
             }, process.env.API_PRIVATE_KEY),
+            data: user,
             message: constants.MESSAGE_SUCCESS,
             status: constants.STATUS_200
         });
@@ -55,6 +64,9 @@ module.exports.getUsers = async function (req, res) {
     var page = parseInt(req.query.page) || 1;
     var positionStart = (page - 1) * constants.AMOUNT_ITEM_IN_PER_PAGE
     var result = await User.find().limit(constants.AMOUNT_ITEM_IN_PER_PAGE).skip(positionStart);
+    result.forEach((e) => {
+        e.hash_password = undefined;
+    });
     return res.json({
         data: result,
         message: constants.MESSAGE_SUCCESS,
