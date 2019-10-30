@@ -4,7 +4,7 @@ var upload = require('../utils/upload'),
 
 module.exports = (app) => {
     app.route('/categories')
-        .get(authController.loginRequired, categoryController.getCategories)
+        .get(categoryController.getCategories)
         .post(authController.loginRequired, upload.single('file'), categoryController.createCategory);
         
     app.route('/categories/:categoryId')

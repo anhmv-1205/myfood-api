@@ -6,7 +6,7 @@ module.exports.index = (req, res) => {
 
 module.exports.getUsers = async function(req, res) {
     var users = await User.find();
-    return res.json({
+    res.json({
         users: users
     });
 };
