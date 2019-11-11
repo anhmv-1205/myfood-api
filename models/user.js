@@ -20,7 +20,8 @@ var userSchema = new mongoose.Schema({
         }
     },
     hash_password: {
-        type: String
+        type: String,
+        required: true
     },
     phone: {
         type: String,
@@ -40,7 +41,8 @@ var userSchema = new mongoose.Schema({
         default: Date.now
     },
     location: [Number],
-    authorities: [String]
+    authorities: [String],
+    categories: [String]
 });
 
 userSchema.methods.comparePassword = function (password) {

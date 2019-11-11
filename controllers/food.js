@@ -1,5 +1,6 @@
 var Food = require('../models/food'),
-    Constants = require('../utils/constants');
+    Constants = require('../utils/constants'),
+    User = require('../models/user');
 
 module.exports.createFood = async (req, res) => {
     console.log(req.file);
@@ -11,10 +12,25 @@ module.exports.createFood = async (req, res) => {
     req.body.img_url = Constants.MY_FOOD_URL + Constants.PATH_IMG + req.file.filename;
     req.body.userId = req.user._id;
     req.body.categoryId = req.params.categoryId
-    
+
     const food = new Food(req.body);
 
     try {
+        var user = User.findOne({
+            _id: req.user._id
+        })
+        
+        if (user.categories == undefined)
+            user.categories = []
+        if (!user.categories.includes(req.params.categoryId)) {
+            user.categories.push(req.params.categoryId)
+            await User.findOneAndUpdate({
+                _id: req.user._id
+            }, {
+                categories: user.categories
+            })
+        }
+
         var newFood = await food.save();
         return res.status(201).json({
             data: newFood,
@@ -28,7 +44,7 @@ module.exports.createFood = async (req, res) => {
                 status: Constants.STATUS_ERROR
             });
         return res.status(500).json({
-            message: Constants.MESSAGE_UNKNOWN_SEVER_ERROR,
+            message: Constants.MESSAGE_UNKNOWN_SEVER_ERROR + err.message,
             status: Constants.STATUS_ERROR
         });
     }
