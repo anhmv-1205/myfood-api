@@ -1,4 +1,5 @@
 var User = require('../models/user'),
+    Food = require('../models/food'),
     jwt = require('jsonwebtoken'),
     bcrypt = require('bcrypt'),
     constants = require('../utils/constants');
@@ -43,7 +44,8 @@ module.exports.sign_in = function (req, res) {
         }
         if (!user || !user.comparePassword(req.body.password)) {
             return res.status(401).json({
-                message: constants.MESSAGE_401
+                message: constants.MESSAGE_401,
+                status: constants.STATUS_ERROR
             });
         }
         user.hash_password = undefined
@@ -74,13 +76,60 @@ module.exports.getUsers = async function (req, res) {
     });
 };
 
+module.exports.getUsersWithCategoryId = async (req, res) => {
+    var categoryId = req.params.categoryId
+
+    try {
+        var result = await User.find({
+            categories: categoryId
+        })
+
+        if (!result)
+            return res.status(204).json({
+                message: constants.MESSAGE_204,
+                status: constants.STATUS_204
+            });
+
+        return res.status(200).json({
+            data: result,
+            message: constants.MESSAGE_SUCCESS,
+            status: constants.STATUS_200
+        })
+    } catch (err) {
+        return res.status(500).json({
+            message: err,
+            status: constants.STATUS_ERROR
+        });
+    }
+}
+
+module.exports.getTheNumberOfFoodWithUserId = async (req, res) => {
+    var userIdParams = req.params.userId;
+    try {
+        var count = await Food.count({
+            userId: userIdParams
+        });
+        return res.status(200).json({
+            data: count,
+            message: constants.MESSAGE_SUCCESS,
+            status: constants.STATUS_200
+        })
+
+    } catch (err) {
+        return res.status(500).json({
+            message: err,
+            status: constants.STATUS_ERROR
+        })
+    }
+}
+
 module.exports.getUserWithId = function (req, res) {
     var userId = req.params.userId
     var user = User.findById(userId, function (err, user) {
         if (err)
             return res.json({
                 data: "",
-                message: err.errmsg,
+                message: err.message,
                 status: constants.STATUS_ERROR
             });
         if (!user) {
@@ -106,7 +155,7 @@ module.exports.updateUser = function (req, res) {
         if (err)
             return res.json({
                 data: "",
-                message: err.errmsg,
+                message: err.message,
                 status: constants.STATUS_ERROR
             })
         return res.json({
@@ -124,7 +173,7 @@ module.exports.deleteUser = function (req, res) {
         if (err)
             return res.json({
                 data: "",
-                message: err.errmsg,
+                message: err.message,
                 status: constants.STATUS_ERROR
             });
         return res.json({

@@ -5,10 +5,26 @@ var Order = require('../models/order'),
 module.exports.createOrder = async (req, res) => {
     req.body.buyerId = req.user._id;
 
-    const order = new Order(req.body);
-
     try {
-        var newOrder = await order.save();
+        var oldOrder = await Order.findOne({
+            foodId: req.body.foodId,
+            buyerId: req.body.buyerId
+        })
+
+        if (oldOrder) {
+            if (oldOrder.status === Constants.REQUESTING || oldOrder.status === Constants.APPROVED)
+                return res.status(400).json({
+                    message: Constants.MESSAGE_ERROR_DUPLICATE,
+                    status: Constants.STATUS_400
+                })
+        }
+
+        let food = await Food.findOne({
+            _id: req.body.foodId
+        });
+        req.body.food = food
+        let order = new Order(req.body);
+        let newOrder = await order.save();
         return res.status(201).json({
             data: newOrder,
             message: Constants.MESSAGE_SUCCESS,
@@ -158,7 +174,7 @@ module.exports.rejectOrder = async (req, res) => {
                 message: Constants.MESSAGE_UPDATED,
                 status: Constants.STATUS_200
             });
-            
+
     } catch (err) {
         if (err.name === 'MongoError' && err.code === 11000)
             return res.status(409).json({

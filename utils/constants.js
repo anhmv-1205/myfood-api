@@ -12,6 +12,7 @@ module.exports = Object.freeze({
      * Error 4xx, 5xx 
      */
     STATUS_400: 'Bad Request',
+    MESSAGE_400: 'Bad request',
     MESSAGE_401: 'Authentication failed. Invalid user or password.',
     MESSAGE_404: 'Not Found Error',
     STATUS_ERROR: 'fail',
@@ -21,6 +22,7 @@ module.exports = Object.freeze({
     MESSAGE_UNKNOWN_SEVER_ERROR: 'Unknown server error!',
     MESSAGE_500: 'error',
     MESSAGE_INVALID_PASSWORD: 'Invalid password. Password validation is at least 6 character!',
+    MESSAGE_ERROR_DUPLICATE: 'ERROR_DUPLICATE',
     /* Number */
     AMOUNT_ITEM_IN_PER_PAGE: 10,
 
@@ -33,7 +35,9 @@ module.exports = Object.freeze({
     APPROVED: 'Approved',
     REJECTED: 'Rejected',
     CANCELED: 'Canceled',
-    DONE: 'Done'
+    DONE: 'Done',
 
+    /* Time */
+    AM : "AM"
     /* Food */
 });

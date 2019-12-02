@@ -19,7 +19,7 @@ module.exports.createFood = async (req, res) => {
         var user = User.findOne({
             _id: req.user._id
         })
-        
+
         if (user.categories == undefined)
             user.categories = []
         if (!user.categories.includes(req.params.categoryId)) {
@@ -51,12 +51,18 @@ module.exports.createFood = async (req, res) => {
 };
 
 module.exports.getFoodsByUserId = async (req, res) => {
-    var page = parseInt(req.query.page) || 1
-    var positionStart = (page - 1) * Constants.AMOUNT_ITEM_IN_PER_PAGE
+    let page = parseInt(req.query.page) || 1
+    let positionStart = (page - 1) * Constants.AMOUNT_ITEM_IN_PER_PAGE
     try {
-        var foods = await Food.find({
+        let foods = await Food.find({
             userId: req.params.userId
         }).limit(Constants.AMOUNT_ITEM_IN_PER_PAGE).skip(positionStart);
+
+        let totalFoods = await Food.count({
+            userId: req.params.userId
+        })
+
+        let totalPage = Math.ceil(totalFoods / Constants.AMOUNT_ITEM_IN_PER_PAGE)
 
         if (!foods)
             return res.status(204).json({
@@ -65,7 +71,12 @@ module.exports.getFoodsByUserId = async (req, res) => {
             });
 
         res.status(200).json({
-            data: foods,
+            data: {
+                foods: foods,
+                total_page: totalPage,
+                current_page: page,
+                total_food: totalFoods
+            },
             message: Constants.MESSAGE_SUCCESS,
             status: Constants.STATUS_200
         });
