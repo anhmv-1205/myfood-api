@@ -8,7 +8,7 @@ module.exports = (app) => {
 
     app.get('/users', authController.loginRequired, userController.getUsers);
 
-    app.get('/users/:categoryId', userController.getUsersWithCategoryId)
+    app.get('/users_by_category_id/:categoryId', userController.getUsersWithCategoryId)
 
     app.get('/users/:userId/numbers_of_foods', userController.getTheNumberOfFoodWithUserId)
 

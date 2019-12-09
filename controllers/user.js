@@ -52,8 +52,7 @@ module.exports.sign_in = function (req, res) {
         return res.json({
             token: jwt.sign({
                 _id: user._id,
-                email: user.email,
-                name: user.name
+                role: user.role
             }, process.env.API_PRIVATE_KEY),
             data: user,
             message: constants.MESSAGE_SUCCESS,
@@ -90,6 +89,10 @@ module.exports.getUsersWithCategoryId = async (req, res) => {
                 status: constants.STATUS_204
             });
 
+        result.forEach((e) => {
+            e.hash_password = undefined
+        })
+
         return res.status(200).json({
             data: result,
             message: constants.MESSAGE_SUCCESS,
@@ -106,7 +109,7 @@ module.exports.getUsersWithCategoryId = async (req, res) => {
 module.exports.getTheNumberOfFoodWithUserId = async (req, res) => {
     var userIdParams = req.params.userId;
     try {
-        var count = await Food.count({
+        var count = await Food.countDocuments({
             userId: userIdParams
         });
         return res.status(200).json({
@@ -125,7 +128,9 @@ module.exports.getTheNumberOfFoodWithUserId = async (req, res) => {
 
 module.exports.getUserWithId = function (req, res) {
     var userId = req.params.userId
-    var user = User.findById(userId, function (err, user) {
+    User.findOne({
+        _id: userId
+    }, function (err, user) {
         if (err)
             return res.json({
                 data: "",
@@ -138,6 +143,7 @@ module.exports.getUserWithId = function (req, res) {
                 status: "fail"
             });
         }
+        user.hash_password = undefined
         return res.json({
             data: user,
             message: constants.MESSAGE_SUCCESS,

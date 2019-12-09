@@ -38,6 +38,11 @@ module.exports = Object.freeze({
     DONE: 'Done',
 
     /* Time */
-    AM : "AM"
+    AM : "AM",
     /* Food */
+
+    /* Role */
+    ROLE_ADMIN : 1,
+    ROLE_FARMER : 2,
+    ROLE_BUYER : 3
 });

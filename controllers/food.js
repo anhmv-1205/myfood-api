@@ -58,11 +58,13 @@ module.exports.getFoodsByUserId = async (req, res) => {
             userId: req.params.userId
         }).limit(Constants.AMOUNT_ITEM_IN_PER_PAGE).skip(positionStart);
 
-        let totalFoods = await Food.count({
+        let totalFoods = await Food.countDocuments({
             userId: req.params.userId
         })
 
         let totalPage = Math.ceil(totalFoods / Constants.AMOUNT_ITEM_IN_PER_PAGE)
+
+        let currentPage = (page > totalPage) ? totalPage : page
 
         if (!foods)
             return res.status(204).json({
@@ -74,7 +76,7 @@ module.exports.getFoodsByUserId = async (req, res) => {
             data: {
                 foods: foods,
                 total_page: totalPage,
-                current_page: page,
+                current_page: currentPage,
                 total_food: totalFoods
             },
             message: Constants.MESSAGE_SUCCESS,

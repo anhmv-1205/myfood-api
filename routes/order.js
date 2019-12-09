@@ -6,6 +6,10 @@ module.exports = (app) => {
         .post(authController.loginRequired, orderController.createOrder)
         .get(authController.loginRequired, orderController.getOrders)
 
+    app.route('/order/:orderId')
+        .get(authController.loginRequired, orderController.getOrderByUserId)
+        .put(authController.loginRequired, orderController.updateOrderStatus)
+
     app.put('/order/:orderId/approve', authController.loginRequired, orderController.approveOrder);
 
     app.put('/order/:orderId/reject', authController.loginRequired, orderController.rejectOrder);

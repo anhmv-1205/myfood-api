@@ -1,6 +1,7 @@
 var mongoose = require('mongoose'),
     bcrypt = require('bcrypt'),
-    validator = require('validator');
+    validator = require('validator'),
+    Constants = require('../utils/constants');
 
 var userSchema = new mongoose.Schema({
     name: {
@@ -41,7 +42,10 @@ var userSchema = new mongoose.Schema({
         default: Date.now
     },
     location: [Number],
-    authorities: [String],
+    role: {
+        type: Number,
+        default: Constants.ROLE_FARMER
+    },
     categories: [String]
 });
 
