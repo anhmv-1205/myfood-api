@@ -25,6 +25,7 @@ module.exports = Object.freeze({
     MESSAGE_ERROR_DUPLICATE: 'ERROR_DUPLICATE',
     /* Number */
     AMOUNT_ITEM_IN_PER_PAGE: 10,
+    MESSAGE_OUT_OF_FOOD: "Sản phẩm đã hết hàng!",
 
     /* String */
     MY_FOOD_URL: 'http://localhost:3000/',

@@ -188,3 +188,35 @@ module.exports.deleteUser = function (req, res) {
         });
     });
 };
+
+module.exports.updateOwner = async (req, res) => {
+    if (req.file)
+        req.body.img_url = Constants.MY_FOOD_URL + Constants.PATH_IMG + req.file.filename;
+
+    const filter = {
+        _id: req.user._id
+    }
+
+    const update = req.body
+
+    try {
+        let user = await User.findOneAndUpdate(filter, update, {
+            returnOriginal: false,
+            useFindAndModify: false
+        })
+        if (!user) return res.status(400).json({
+            message: Constants.MESSAGE_400,
+            status: Constants.STATUS_400
+        })
+        return res.status(200).json({
+            data: user,
+            message: Constants.MESSAGE_SUCCESS,
+            status: Constants.STATUS_200
+        })
+    } catch (err) {
+        return res.status(500).json({
+            message: err,
+            status: constants.STATUS_ERROR
+        });
+    }
+}

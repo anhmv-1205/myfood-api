@@ -8,8 +8,7 @@ module.exports = (app) => {
     app.post('/foods/:categoryId', upload.single('file'), authController.loginRequired, foodController.createFood);
 
     app.route('/foods/:userId')
-        .get(foodController.getFoodsByUserId);
-        //.get(authController.loginRequired, foodController.getFoodsByUserId);
+        .get(authController.loginRequired, foodController.getFoodsByUserId);
     
     app.route('/foods/:foodId')
         .put(authController.loginRequired, upload.single('file'), foodController.updateFoodById)

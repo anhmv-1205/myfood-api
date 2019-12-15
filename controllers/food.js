@@ -3,7 +3,6 @@ var Food = require('../models/food'),
     User = require('../models/user');
 
 module.exports.createFood = async (req, res) => {
-    console.log(req.file);
     if (!req.file)
         return res.status(500).json({
             message: Constants.MESSAGE_500,
@@ -16,7 +15,7 @@ module.exports.createFood = async (req, res) => {
     const food = new Food(req.body);
 
     try {
-        var user = User.findOne({
+        var user = await User.findOne({
             _id: req.user._id
         })
 
@@ -28,6 +27,8 @@ module.exports.createFood = async (req, res) => {
                 _id: req.user._id
             }, {
                 categories: user.categories
+            }, {
+                useFindAndModify: false
             })
         }
 
@@ -56,6 +57,8 @@ module.exports.getFoodsByUserId = async (req, res) => {
     try {
         let foods = await Food.find({
             userId: req.params.userId
+        }).sort({
+            _id: -1
         }).limit(Constants.AMOUNT_ITEM_IN_PER_PAGE).skip(positionStart);
 
         let totalFoods = await Food.countDocuments({
@@ -96,6 +99,8 @@ module.exports.getFoodsOfUser = async (req, res) => {
     try {
         var foods = await Food.find({
             userId: req.user._id
+        }).sort({
+            _id: -1
         }).limit(Constants.AMOUNT_ITEM_IN_PER_PAGE).skip(positionStart);
 
         if (!foods)
@@ -105,8 +110,21 @@ module.exports.getFoodsOfUser = async (req, res) => {
                 status: Constants.STATUS_204
             });
 
+        let totalFoods = await Food.countDocuments({
+            userId: req.user._id
+        })
+
+        let totalPage = Math.ceil(totalFoods / Constants.AMOUNT_ITEM_IN_PER_PAGE)
+
+        let currentPage = (page > totalPage) ? totalPage : page
+
         res.status(200).json({
-            data: foods,
+            data: {
+                foods: foods,
+                total_page: totalPage,
+                current_page: currentPage,
+                total_food: totalFoods
+            },
             message: Constants.MESSAGE_SUCCESS,
             status: Constants.STATUS_200
         });
@@ -126,7 +144,8 @@ module.exports.updateFoodById = async (req, res) => {
                 _id: req.params.foodId
             },
             req.body, {
-                new: true
+                returnOriginal: false,
+                useFindAndModify: false
             });
 
         if (!food)
@@ -134,11 +153,12 @@ module.exports.updateFoodById = async (req, res) => {
                 message: Constants.MESSAGE_NOT_FOUND,
                 status: Constants.STATUS_ERROR
             });
-        else
-            return res.status(204).json({
-                message: Constants.MESSAGE_UPDATED,
-                status: Constants.STATUS_200
-            });
+
+        return res.status(200).json({
+            data: food,
+            message: Constants.MESSAGE_UPDATED,
+            status: Constants.STATUS_200
+        });
     } catch (err) {
         if (err.name === 'MongoError' && err.code === 11000)
             return res.status(409).json({
@@ -156,6 +176,8 @@ module.exports.deleteFoodById = async (req, res) => {
     try {
         let food = await Food.findOneAndRemove({
             _id: req.params.foodId
+        }, {
+            useFindAndModify: false
         });
 
         if (!food)
@@ -164,7 +186,7 @@ module.exports.deleteFoodById = async (req, res) => {
                 status: Constants.MESSAGE_NOT_FOUND
             });
         else
-            return res.status(204).json({
+            return res.status(200).json({
                 message: Constants.MESSAGE_DELETED,
                 status: Constants.STATUS_200
             });

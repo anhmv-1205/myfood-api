@@ -1,4 +1,5 @@
 var userController = require('../controllers/user'),
+    upload = require('../utils/upload'),
     authController = require('../controllers/auth');
 
 module.exports = (app) => {
@@ -6,7 +7,9 @@ module.exports = (app) => {
 
     app.post('/sign_in', userController.sign_in);
 
-    app.get('/users', authController.loginRequired, userController.getUsers);
+    app.route('/users')
+        .get(authController.loginRequired, userController.getUsers)
+        .put(upload.single('file'), authController.loginRequired, userController.updateOwner);
 
     app.get('/users_by_category_id/:categoryId', userController.getUsersWithCategoryId)
 
