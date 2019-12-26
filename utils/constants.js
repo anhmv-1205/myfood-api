@@ -30,7 +30,7 @@ module.exports = Object.freeze({
     /* String */
     MY_FOOD_URL: 'http://localhost:3000/',
     PATH_IMG: 'images/',
-
+    PATH_PUBLIC: 'public/',
     /* Order status */
     REQUESTING: 'Requesting',
     APPROVED: 'Approved',

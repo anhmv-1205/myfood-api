@@ -1,6 +1,7 @@
 var Food = require('../models/food'),
     Constants = require('../utils/constants'),
-    User = require('../models/user');
+    User = require('../models/user'),
+    fs = require('fs');
 
 module.exports.createFood = async (req, res) => {
     if (!req.file)
@@ -138,15 +139,14 @@ module.exports.getFoodsOfUser = async (req, res) => {
 
 module.exports.updateFoodById = async (req, res) => {
     if (req.file) req.body.img_url = Constants.MY_FOOD_URL + Constants.PATH_IMG + req.file.filename;
-
     try {
         let food = await Food.findOneAndUpdate({
-                _id: req.params.foodId
-            },
-            req.body, {
-                returnOriginal: false,
-                useFindAndModify: false
-            });
+            _id: req.params.foodId
+        }, {
+            $set: req.body
+        }, {
+            useFindAndModify: false
+        });
 
         if (!food)
             return res.status(400).json({
@@ -154,8 +154,61 @@ module.exports.updateFoodById = async (req, res) => {
                 status: Constants.STATUS_ERROR
             });
 
+        if (req.file) {
+            try {
+                const path = food.img_url.replace(Constants.MY_FOOD_URL, '');
+                fs.unlinkSync(Constants.PATH_PUBLIC + path);
+                console.log('successfully deleted img-url of ' + food.name);
+            } catch (error) {
+                console.log('can not delete img-url')
+            }
+        }
+        console.log("old category: " + food.categoryId)
+        console.log("new category: " + req.body.categoryId)
+        if ((req.body.categoryId) && (req.body.categoryId != food.categoryId)) {
+            const numberFoodWithOldCategoryId = await Food.countDocuments({
+                categoryId: food.categoryId,
+                userId: req.user._id
+            });
+            
+            if (numberFoodWithOldCategoryId == 0) {
+                await User.updateOne({
+                    _id: req.user._id
+                }, {
+                    $pull: {
+                        categories: food.categoryId
+                    }
+                })
+            }
+
+            try {
+                let user = await User.findOne({
+                    _id: req.user._id
+                })
+    
+                if (!user.categories.includes(req.body.categoryId)) {
+                    user.categories.push(req.body.categoryId)
+                    await User.findOneAndUpdate({
+                        _id: req.user._id
+                    }, {
+                        $set : {
+                            categories: user.categories
+                        }
+                    }, {
+                        useFindAndModify: false
+                    })
+                } 
+            } catch (error) {
+                console.log(error)
+            }
+        }
+
+        const newFood = await Food.findOne({
+            _id: req.params.foodId
+        });
+
         return res.status(200).json({
-            data: food,
+            data: newFood,
             message: Constants.MESSAGE_UPDATED,
             status: Constants.STATUS_200
         });
@@ -180,16 +233,42 @@ module.exports.deleteFoodById = async (req, res) => {
             useFindAndModify: false
         });
 
-        if (!food)
+        if (!food) {
             return res.status(400).json({
                 message: Constants.MESSAGE_NOT_FOUND,
                 status: Constants.MESSAGE_NOT_FOUND
             });
-        else
+        } else {
+            try {
+                const path = food.img_url.replace(Constants.MY_FOOD_URL, '');
+                console.log('path > ' + path)
+                console.log('path system > ' + Constants.PATH_PUBLIC + path)
+                fs.unlinkSync(Constants.PATH_PUBLIC + path);
+                console.log('successfully deleted img-url of ' + food.name);
+            } catch (error) {
+                console.log('can not delete img-url')
+            }
+
+            let countFoodSameCategoryOfUser = await Food.countDocuments({
+                categoryId: food.categoryId,
+                userId: req.user._id
+            });
+
+            if (countFoodSameCategoryOfUser == 0) {
+                await User.updateOne({
+                    _id: req.user._id
+                }, {
+                    $pull: {
+                        categories: food.categoryId
+                    }
+                })
+            }
+
             return res.status(200).json({
                 message: Constants.MESSAGE_DELETED,
                 status: Constants.STATUS_200
             });
+        }
     } catch (ex) {
         return res.status(500).json({
             message: Constants.MESSAGE_UNKNOWN_SEVER_ERROR,
