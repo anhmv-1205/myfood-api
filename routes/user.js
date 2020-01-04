@@ -19,4 +19,6 @@ module.exports = (app) => {
         .get(authController.loginRequired, userController.getUserWithId)
         .put(authController.loginRequired, userController.updateUser)
         .delete(authController.loginRequired, userController.deleteUser);
+
+    app.get('/users/information/:userId', authController.loginRequired, userController.getUserInformationRelatedFood)
 };

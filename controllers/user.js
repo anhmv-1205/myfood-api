@@ -2,6 +2,7 @@ var User = require('../models/user'),
     Food = require('../models/food'),
     jwt = require('jsonwebtoken'),
     bcrypt = require('bcrypt'),
+    Comment = require('../models/comment'),
     constants = require('../utils/constants');
 
 module.exports.register = function (req, res) {
@@ -114,6 +115,48 @@ module.exports.getTheNumberOfFoodWithUserId = async (req, res) => {
         });
         return res.status(200).json({
             data: count,
+            message: constants.MESSAGE_SUCCESS,
+            status: constants.STATUS_200
+        })
+
+    } catch (err) {
+        return res.status(500).json({
+            message: err,
+            status: constants.STATUS_ERROR
+        })
+    }
+}
+
+module.exports.getUserInformationRelatedFood = async (req, res) => {
+    var userIdParams = req.params.userId;
+    try {
+        const count = await Food.countDocuments({
+            userId: userIdParams
+        });
+
+        console.log("abc")
+
+        let comments = await Comment.find({
+            sellerId: userIdParams
+        })
+        
+        var rate = 0
+
+        if (comments.length > 0) {
+            rate = comments.reduce((total, item) => {
+                return {
+                    rating: total.rating + item.rating
+                }
+            }).rating / comments.length
+        }
+        
+        let data = {
+            count: count,
+            rate: Math.ceil(rate)
+        }
+
+        return res.status(200).json({
+            data: data,
             message: constants.MESSAGE_SUCCESS,
             status: constants.STATUS_200
         })
